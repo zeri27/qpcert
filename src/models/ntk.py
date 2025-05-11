@@ -1515,17 +1515,17 @@ class NTK(torch.nn.Module):
                     idx_sup = (alpha > self.alpha_tol)
                     y_sup = y_test[idx_labeled][idx_sup] * 2 - 1
                     alpha_sup = alpha[idx_sup]
-                    w = y_sup * alpha_sup
+                    w = y_sup.cuda() * alpha_sup.cuda()
                     bias_tol = max(self.alpha_tol, 1e-10)
                     bias_mask = alpha_sup < (self.regularizer - bias_tol)
                     ntk_sup = ntk_labeled[idx_sup, :]
                     ntk_sup = ntk_sup[:, idx_sup]
-                    y_pred = (y_sup * alpha_sup * ntk_unlabeled[:,idx_sup]).sum(dim=1) 
+                    y_pred = (y_sup.cuda() * alpha_sup.cuda() * ntk_unlabeled[:,idx_sup]).sum(dim=1)
                     if self.bias:
                         if bias_mask.sum() == 0:
                             raise NotImplementedError("All alpha = C, calculating"
                                 " bias not supported by cvxopt implementaiton")
-                        b = y_sup[bias_mask] - (y_sup * alpha_sup * ntk_sup[bias_mask, :]).sum(dim=1)
+                        b = y_sup[bias_mask] - (y_sup.cuda() * alpha_sup.cuda() * ntk_sup[bias_mask, :]).sum(dim=1)
                         b = b.mean()
                         y_pred += b
                 elif self.solver == "sklearn":
@@ -1574,17 +1574,17 @@ class NTK(torch.nn.Module):
                         y_sup[y_mask] = 1
                         y_sup[~y_mask] = -1
                         alpha_sup = alpha[idx_sup]
-                        w = y_sup * alpha_sup
+                        w = y_sup.cuda() * alpha_sup.cuda()
                         bias_tol = max(self.alpha_tol, 1e-10)
                         bias_mask = alpha_sup < (self.regularizer - bias_tol)
                         ntk_sup = ntk_labeled[idx_sup, :]
                         ntk_sup = ntk_sup[:, idx_sup]
-                        pred = (y_sup * alpha_sup * ntk_unlabeled[:,idx_sup]).sum(dim=1) 
+                        pred = (y_sup.cuda() * alpha_sup.cuda() * ntk_unlabeled[:,idx_sup]).sum(dim=1)
                         if self.bias:
                             if bias_mask.sum() == 0:
                                 raise NotImplementedError("All alpha = C, calculating"
                                     " bias not supported by cvxopt implementaiton")
-                            b = y_sup[bias_mask] - (y_sup * alpha_sup * ntk_sup[bias_mask, :]).sum(dim=1)
+                            b = y_sup[bias_mask] - (y_sup.cuda() * alpha_sup.cuda() * ntk_sup[bias_mask, :]).sum(dim=1)
                             b = b.mean()
                             pred += b
                         y_pred[:, k] = pred
@@ -1726,7 +1726,7 @@ class NTK(torch.nn.Module):
                     y_pred = (y_sup_pos * alpha_sup_pos * ntk_unlabeled_sup_ub[:,y_sup_pos_mask]).sum(dim=1) \
                         + (y_sup_neg * alpha_sup_neg * ntk_unlabeled_sup_lb[:,~y_sup_pos_mask]).sum(dim=1)
                     if self.bias:
-                        b = y_sup[idx_bias] - (y_sup * alpha_sup * ntk_sup[idx_bias, :]).sum(dim=1)
+                        b = y_sup[idx_bias] - (y_sup.cuda() * alpha_sup.cuda() * ntk_sup[idx_bias, :]).sum(dim=1)
                         b = b.mean()
                         y_pred += b
                 elif self.solver == 'sklearn':
@@ -1808,7 +1808,7 @@ class NTK(torch.nn.Module):
                         pred = (y_sup_pos * alpha_sup_pos * ntk_unlabeled_sup_ub[:,y_sup_pos_mask]).sum(dim=1) \
                             + (y_sup_neg * alpha_sup_neg * ntk_unlabeled_sup_lb[:,~y_sup_pos_mask]).sum(dim=1)
                         if self.bias:
-                            b = y_sup[idx_bias] - (y_sup * alpha_sup * ntk_sup[idx_bias, :]).sum(dim=1)
+                            b = y_sup[idx_bias] - (y_sup.cuda() * alpha_sup.cuda() * ntk_sup[idx_bias, :]).sum(dim=1)
                             b = b.mean()
                             pred += b
                         y_pred[:, k] = pred
@@ -1942,7 +1942,7 @@ class NTK(torch.nn.Module):
                     y_pred = (y_sup_pos * alpha_sup_pos * ntk_unlabeled_sup_lb[:,y_sup_pos_mask]).sum(dim=1) \
                         + (y_sup_neg * alpha_sup_neg * ntk_unlabeled_sup_ub[:,~y_sup_pos_mask]).sum(dim=1)
                     if self.bias:
-                        b = y_sup[idx_bias] - (y_sup * alpha_sup * ntk_sup[idx_bias, :]).sum(dim=1)
+                        b = y_sup[idx_bias] - (y_sup.cuda() * alpha_sup.cuda() * ntk_sup[idx_bias, :]).sum(dim=1)
                         b = b.mean()
                         y_pred += b
                 elif self.solver == 'sklearn':
@@ -2010,7 +2010,7 @@ class NTK(torch.nn.Module):
                         pred = (y_sup_pos * alpha_sup_pos * ntk_unlabeled_sup_lb[:,y_sup_pos_mask]).sum(dim=1) \
                             + (y_sup_neg * alpha_sup_neg * ntk_unlabeled_sup_ub[:,~y_sup_pos_mask]).sum(dim=1)
                         if self.bias:
-                            b = y_sup[idx_bias] - (y_sup * alpha_sup * ntk_sup[idx_bias, :]).sum(dim=1)
+                            b = y_sup[idx_bias] - (y_sup.cuda() * alpha_sup.cuda() * ntk_sup[idx_bias, :]).sum(dim=1)
                             b = b.mean()
                             pred += b
                         y_pred[:, k] = pred
