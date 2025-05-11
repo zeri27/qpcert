@@ -2233,12 +2233,21 @@ def certify_collective_robust_label(idx_labeled, idx_test, ntk, y,
         p_test = C * np.abs(ntk_unlabeled)@v_ones
         p_test_lb = - p_test
         p_test_ub = + p_test
-        if y_pred_pos.sum() >0:
-            m.addConstr((ntk_unlabeled @ z)[y_pred_pos] <= p_test_ub[y_pred_pos]*(1-count[y_pred_pos]), "p_test_pos_ub")
-            m.addConstr((ntk_unlabeled @ z)[y_pred_pos] >= p_test_lb[y_pred_pos]*(count[y_pred_pos]), "p_test_pos_ub")
-        if (~y_pred_pos).sum() >0:
-            m.addConstr((ntk_unlabeled @ z)[~y_pred_pos] <= p_test_ub[~y_pred_pos]*(count[~y_pred_pos]), "p_test_neg_ub")
-            m.addConstr((ntk_unlabeled @ z)[~y_pred_pos] >= p_test_lb[~y_pred_pos]*(1-count[~y_pred_pos]), "p_test_neg_ub")
+        # Convert boolean mask from CUDA tensor to NumPy for safe indexing
+        y_pred_pos_idx = y_pred_pos.cpu().numpy() if torch.is_tensor(y_pred_pos) else y_pred_pos
+        y_pred_neg_idx = (~y_pred_pos).cpu().numpy() if torch.is_tensor(y_pred_pos) else ~y_pred_pos
+
+        if y_pred_pos_idx.sum() > 0:
+            m.addConstr((ntk_unlabeled @ z)[y_pred_pos_idx] <= p_test_ub[y_pred_pos_idx] * (1 - count[y_pred_pos_idx]),
+                        "p_test_pos_ub")
+            m.addConstr((ntk_unlabeled @ z)[y_pred_pos_idx] >= p_test_lb[y_pred_pos_idx] * (count[y_pred_pos_idx]),
+                        "p_test_pos_lb")
+
+        if y_pred_neg_idx.sum() > 0:
+            m.addConstr((ntk_unlabeled @ z)[y_pred_neg_idx] <= p_test_ub[y_pred_neg_idx] * (count[y_pred_neg_idx]),
+                        "p_test_neg_ub")
+            m.addConstr((ntk_unlabeled @ z)[y_pred_neg_idx] >= p_test_lb[y_pred_neg_idx] * (1 - count[y_pred_neg_idx]),
+                        "p_test_neg_lb")
 
         # Set the initial values for the parameters
         alpha.Start = svm_alpha

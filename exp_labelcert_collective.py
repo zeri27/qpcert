@@ -22,12 +22,13 @@ from common import count_edges_for_idx
 
 ex = Experiment()
 ex.captured_out_filter = apply_backspaces_and_linefeeds
-seml.setup_logger(ex)
+#seml.setup_logger(ex)
 
 
 @ex.post_run_hook
 def collect_stats(_run):
-    seml.collect_exp_stats(_run)
+    #seml.collect_exp_stats(_run)
+    return None
 
 
 @ex.config
@@ -273,7 +274,7 @@ def run(data_params: Dict[str, Any],
     ntk_labeled = ntk_labeled[:, idx_labeled]
     ntk_unlabeled = ntk_test[idx_test,:][:,idx_labeled]
     cond = torch.linalg.cond(ntk_labeled)
-    ntk_labeled += torch.eye(ntk_labeled.shape[0], dtype=torch.float64).to(device) \
+    ntk_labeled += torch.eye(ntk_labeled.shape[0], dtype=torch.float64, device=device) \
                     * model_params["regularizer"]
     cond_regularized = torch.linalg.cond(ntk_labeled)
     min_ypred = torch.min(y_pred).cpu().item()
