@@ -20,12 +20,13 @@ from common import count_edges_for_idx
 
 ex = Experiment()
 ex.captured_out_filter = apply_backspaces_and_linefeeds
-seml.setup_logger(ex)
+#seml.setup_logger(ex)
 
 
 @ex.post_run_hook
 def collect_stats(_run):
-    seml.collect_exp_stats(_run)
+    #seml.collect_exp_stats(_run)
+    return
 
 
 @ex.config

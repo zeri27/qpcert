@@ -1579,6 +1579,7 @@ class NTK(torch.nn.Module):
                         bias_mask = alpha_sup < (self.regularizer - bias_tol)
                         ntk_sup = ntk_labeled[idx_sup, :]
                         ntk_sup = ntk_sup[:, idx_sup]
+                        ntk_unlabeled = ntk_unlabeled.cuda()
                         pred = (y_sup.cuda() * alpha_sup.cuda() * ntk_unlabeled[:,idx_sup]).sum(dim=1)
                         if self.bias:
                             if bias_mask.sum() == 0:
