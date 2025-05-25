@@ -1,3 +1,4 @@
+import os
 from collections import Counter
 import logging
 from pathlib import Path
@@ -135,10 +136,9 @@ def get_wikics_binary(specification: Dict[str, Any]):
 
 def get_cora_ml(specification: Dict[str, Any]):
     """Loads cora_ml and makes it undirected."""
-    directory = specification["data_dir"]
-    if isinstance(directory, str):
-        directory = Path(directory)
-    path_to_file = directory / ("cora_ml.npz")
+    current_dir = os.path.dirname(__file__)
+    data_path = os.path.join(current_dir, '..', 'data', 'cora_ml.npz')
+    path_to_file = os.path.abspath(data_path)
     with np.load(path_to_file, allow_pickle=True) as loader:
         loader = dict(loader)
         adj_matrix = sp.csr_matrix((loader['adj_matrix.data'], 
@@ -166,10 +166,9 @@ def get_cora_ml(specification: Dict[str, Any]):
 def get_cora_ml_cont(dataset: str, specification: Dict[str, Any], load_binary_feature: bool = False,
                      load_embedding: str= "BERT"):
     """Loads cora_ml and makes it undirected."""
-    directory = specification["data_dir"]
-    if isinstance(directory, str):
-        directory = Path(directory)
-    path_to_file = directory / (dataset + ".npz")
+    current_dir = os.path.dirname(__file__)
+    data_path = os.path.join(current_dir, '..', 'data', 'cora_ml_cont.npz')
+    path_to_file = os.path.abspath(data_path)
     with np.load(path_to_file, allow_pickle=True) as loader:
         loader = dict(loader)
         adj_matrix = sp.csr_matrix((loader['adj_data'], 

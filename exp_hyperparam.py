@@ -237,7 +237,7 @@ def run(data_params: Dict[str, Any],
             # Some Statistics
             ntk_labeled = ntk.ntk[idx_known_labeled, :]
             ntk_labeled = ntk_labeled[:, idx_known_labeled]
-            ntk_labeled += torch.eye(ntk_labeled.shape[0], dtype=torch.float64).to(device) \
+            ntk_labeled += torch.eye(ntk_labeled.shape[0], dtype=torch.float64, device=device) \
                             * model_params["regularizer"]
             ntk_unlabeled = ntk_test[idx_test,:][:,idx_labeled]
             cond_l.append(torch.linalg.cond(ntk_labeled).cpu().item())
