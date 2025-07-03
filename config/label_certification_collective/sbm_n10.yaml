@@ -27,7 +27,7 @@ fixed:
       # avg_between_class_degree: 0.74 
 
   certificate_params:
-    TimeLimit: 86400
+    TimeLimit: 10800 #3 hoours 
     LogToConsole: 1
     OutputFlag: 1
     Threads: 2

@@ -259,7 +259,9 @@ def run(data_params: Dict[str, Any],
         save_params = None
     del A
     del X
-    is_robust_l, obj, obj_bound, opt_status, y_opt_l, y_test_worst_obj = \
+
+    ## return node count
+    is_robust_l, obj, obj_bound, opt_status, y_opt_l, y_test_worst_obj, node_count  = \
     utils.certify_collective_robust_label(
             idx_labeled, idx_test, ntk_test, y, y_pred, svm_alpha, certificate_params, 
             l_flip=delta, C=model_params["regularizer"], M=1e3, Mprime=1e3,
@@ -290,6 +292,7 @@ def run(data_params: Dict[str, Any],
     if data_params["dataset"] == "csbm":
         return dict(
             # general statistics
+            
             accuracy_test = acc,
             accuracy_trn = acc_trn,
             accuracy_cert_pois_robust = acc_cert,
@@ -323,10 +326,13 @@ def run(data_params: Dict[str, Any],
             min_ntkunlabeled = min_ntkunlabeled,
             max_ntkunlabeled = max_ntkunlabeled,
             cond = cond.cpu().item(),
-            cond_regularized = cond_regularized.cpu().item()
+            cond_regularized = cond_regularized.cpu().item(),
+            gurobi_node_count=node_count,
+            
         )
     else: 
         return dict(
+            
             # general statistics
             accuracy_test = acc,
             accuracy_trn = acc_trn,
@@ -358,5 +364,6 @@ def run(data_params: Dict[str, Any],
             min_ntkunlabeled = min_ntkunlabeled,
             max_ntkunlabeled = max_ntkunlabeled,
             cond = cond.cpu().item(),
-            cond_regularized = cond_regularized.cpu().item()
+            cond_regularized = cond_regularized.cpu().item(),
+            gurobi_node_count=node_count,
         )
