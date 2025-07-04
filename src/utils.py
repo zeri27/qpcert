@@ -2339,6 +2339,28 @@ def certify_collective_robust_label(idx_labeled, idx_test, ntk, y,
         else:
             m.optimize(callback)
             logging.info(f"Optimization status: {m.Status}")
+        
+        
+        # ##improvement we capture the hardware-independent complexity metrics from Gurobi---------------------------------------------------------
+        node_count = 0
+        if hasattr(m, 'NodeCount'):
+            node_count = m.NodeCount
+        
+        y_flip_solution = np.zeros(n_labeled)
+        if m.SolCount > 0: 
+            y_flip_solution = y_b.X
+            
+        # save the final attack labels to a file for later analysis
+        if save_params:
+            save_dir = save_params.get('save_dir', 'results') 
+            os.makedirs(save_dir, exist_ok=True) 
+            
+            base_name = (f"{save_dir}/{save_params.get('label', 'model')}_"
+                         f"{save_params.get('dataset', 'data')}_"
+                         f"eps{l_flip}_seed{save_params.get('seed', '0')}")
+                         
+            np.save(f"{base_name}_attack_binary_labels.npy", y_flip_solution)
+            logging.info(f"Saved attack vector to {base_name}_attack_binary_labels.npy")
 
         if m.Status == GRB.INFEASIBLE:
             # WARNING: not a good sign to be here as our model will have feasible region for sure.
@@ -2400,4 +2422,6 @@ def certify_collective_robust_label(idx_labeled, idx_test, ntk, y,
     except AttributeError as a:
         logging.error(f"Encountered an attribute error {a.errno}: {a}")
         return
-    return is_robust_l, obj, obj_bound, opt_status, y_opt_l, y_test_worst_obj
+    
+    # adjusment node_count
+    return is_robust_l, obj, obj_bound, opt_status, y_opt_l, y_test_worst_obj, node_count
