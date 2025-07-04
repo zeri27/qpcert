@@ -257,6 +257,8 @@ def run(data_params: Dict[str, Any],
                            save_dir=certificate_params["save_dir"])
     else:
         save_params = None
+    A_test = A.cpu().numpy()[idx_test][:, idx_test]
+    X_test = X.cpu().numpy()[idx_test]
     del A
     del X
 
@@ -287,12 +289,21 @@ def run(data_params: Dict[str, Any],
     min_ntkunlabeled = torch.min(ntk_unlabeled).cpu().item()
     max_ntkunlabeled = torch.max(ntk_unlabeled).cpu().item()
 
+    test_dict = dict(
+        n_test_nodes = len(idx_test),
+        n_test_edges = int(np.sum(A_test) / 2),
+        avg_test_degree = float(np.mean(np.sum(A_test, axis=1))),
+        test_feature_dim = X_test.shape[1],
+        test_feature_norms = np.linalg.norm(X_test, axis=1).tolist(),
+        test_ntk_rank = int(np.linalg.matrix_rank(ntk_unlabeled.cpu().numpy()))
+    )
+
     if torch.cuda.is_available() and other_params["device"] != "cpu":
         torch.cuda.empty_cache()
     if data_params["dataset"] == "csbm":
         return dict(
             # general statistics
-            
+
             accuracy_test = acc,
             accuracy_trn = acc_trn,
             accuracy_cert_pois_robust = acc_cert,
@@ -328,11 +339,10 @@ def run(data_params: Dict[str, Any],
             cond = cond.cpu().item(),
             cond_regularized = cond_regularized.cpu().item(),
             gurobi_node_count=node_count,
-            
+            test_nodes_info = test_dict
         )
     else: 
         return dict(
-            
             # general statistics
             accuracy_test = acc,
             accuracy_trn = acc_trn,
@@ -366,4 +376,5 @@ def run(data_params: Dict[str, Any],
             cond = cond.cpu().item(),
             cond_regularized = cond_regularized.cpu().item(),
             gurobi_node_count=node_count,
+            test_nodes_info = test_dict
         )
